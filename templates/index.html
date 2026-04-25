@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<form action="/add" method="POST">
+    <input type="text" name="tarefa" placeholder="Nova tarefa">
+    <button type="submit">Adicionar</button>
+</form>
+
+<ul>
+    {% for tarefa in tarefas %}
+        <li>{{ tarefa }}</li>
+    {% endfor %}
+</ul>
+
+{% endblock %}
