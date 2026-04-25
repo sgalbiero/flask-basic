@@ -1,0 +1,117 @@
+{#
+    HERANÇA DE TEMPLATE (Jinja2)
+    "extends" diz que esta página "herda" o layout de base.html.
+    Tudo fora de um bloco é ignorado pelo Jinja2.
+    NOTA: este é um comentário Jinja2 — não aparece no HTML final.
+          Use-o quando o comentário contém sintaxe Jinja2.
+#}
+{% extends "base.html" %}
+
+{# Sobrescreve o bloco "title" definido em base.html. #}
+{% block title %}Lista de Tarefas{% endblock %}
+
+{% block content %}
+
+<section class="card">
+    <h2>Adicionar Tarefa</h2>
+
+    <!--
+        FORMULÁRIO HTML
+        action → URL para onde os dados são enviados
+        method="POST" → envia dados no corpo da requisição (não na URL)
+        url_for('main.add') gera a URL dinamicamente a partir do nome da função.
+    -->
+    <form action="{{ url_for('main.add') }}" method="POST">
+        <input type="text" name="tarefa" placeholder="Ex: Criar o modelo de dados" autofocus>
+        <button type="submit">Adicionar</button>
+    </form>
+</section>
+
+<section class="card">
+    <h2>Tarefas
+        <!--
+            FILTRO Jinja2: pipe (|) aplica transformações a variáveis.
+            "length" retorna o tamanho de uma lista.
+            Outros filtros úteis: upper, lower, capitalize, default
+        -->
+        <span class="contador">({{ tarefas | length }})</span>
+    </h2>
+
+    {#
+        CONDICIONAL Jinja2: if / elif / else / endif
+        Uma lista vazia é avaliada como False.
+        NOTA: comentário Jinja2 usado aqui porque o texto descreve sintaxe Jinja2.
+    #}
+    {% if tarefas %}
+
+        <ul>
+            {#
+                LOOP Jinja2: for item in lista
+                Variável especial "loop" disponível dentro do for:
+                  loop.index  → posição atual (começa em 1)
+                  loop.index0 → posição atual (começa em 0) — usamos para deletar
+                  loop.first  → True se for o primeiro item
+                  loop.last   → True se for o último item
+            #}
+            {% for tarefa in tarefas %}
+                <li>
+                    <span class="numero">{{ loop.index }}.</span>
+
+                    <!--
+                        "tarefa" é a variável do loop.
+                        Jinja2 escapa HTML automaticamente — proteção contra XSS.
+                    -->
+                    {{ tarefa }}
+
+                    <!--
+                        Botão de deletar usa form POST.
+                        HTML suporta apenas GET e POST nativamente (não DELETE/PATCH).
+                        loop.index0 passa o índice zero-based para a rota /delete/<index>.
+                    -->
+                    <form action="{{ url_for('main.delete', index=loop.index0) }}" method="POST" class="form-inline">
+                        <button type="submit" class="btn-deletar" title="Remover tarefa">×</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <!-- Botão para limpar todas as tarefas de uma vez -->
+        <form action="{{ url_for('main.clear') }}" method="POST">
+            <button type="submit" class="btn-limpar">Limpar tudo</button>
+        </form>
+
+    {% else %}
+        <p class="vazio">Nenhuma tarefa ainda. Adicione a primeira acima! ⬆️</p>
+    {% endif %}
+</section>
+
+<section class="card">
+    <h2>Referência rápida Jinja2</h2>
+    <!--
+        raw/endraw → diz ao Jinja2 para NÃO processar o conteúdo entre as tags.
+        Útil para exibir sintaxe Jinja2 como texto literal na página.
+    -->
+    {% raw %}
+    <pre>
+  {{ variavel }}               → exibe valor (escapado)
+  {{ variavel | filtro }}      → aplica filtro (ex: | upper, | length)
+  {% if condicao %}            → condicional
+  {% elif outra %}             → senão se
+  {% else %}                   → senão
+  {% endif %}                  → fecha if
+
+  {% for item in lista %}      → loop
+  {% endfor %}                 → fecha for
+  loop.index / loop.index0     → posição no loop (1-based / 0-based)
+
+  {% block nome %}             → define área sobrescritível
+  {% endblock %}               → fecha bloco
+  {% extends "base.html" %}    → herda layout de outro template
+  {% include "arquivo.html" %} → inclui fragmento reutilizável
+
+  {# comentário #}             → comentário Jinja2 (não aparece no HTML)
+    </pre>
+    {% endraw %}
+</section>
+
+{% endblock %}

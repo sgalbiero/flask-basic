@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!--
+        BLOCO DE TÍTULO (Jinja2)
+        Cada página filha pode sobrescrever este bloco com seu próprio título.
+        Se não sobrescrever, usa o valor padrão abaixo.
+    -->
+    <title>{% block title %}Hackathon App{% endblock %}</title>
+
+    <!--
+        url_for('static', filename='style.css')
+        Gera a URL correta para o arquivo estático, independente de onde o app está montado.
+        NUNCA escreva o caminho direto ("/static/style.css") — use sempre url_for.
+    -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <header>
+        <h1>🚀 Flask Educacional</h1>
+        <nav>
+            <!--
+                url_for('main.index') gera a URL da função index() do blueprint 'main'.
+                Formato: url_for('nome_do_blueprint.nome_da_funcao')
+            -->
+            <a href="{{ url_for('main.index') }}">Tarefas</a>
+        </nav>
+    </header>
+
+    <main>
+        <!--
+            MENSAGENS FLASH (Jinja2 + Flask)
+            get_flashed_messages(with_categories=True) retorna uma lista de tuplas
+            [(categoria, mensagem), ...] geradas pelo flash() nas rotas.
+            O loop só aparece se houver mensagens — Jinja2 trata listas vazias como falso.
+        -->
+        {% with mensagens = get_flashed_messages(with_categories=True) %}
+            {% if mensagens %}
+                <div class="flash-container">
+                    {% for categoria, mensagem in mensagens %}
+                        <div class="flash flash-{{ categoria }}">{{ mensagem }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {#
+            BLOCO CONTENT
+            Todo conteúdo específico de cada página vai aqui.
+            Páginas filhas usam "block content" / "endblock" para preencher.
+        #}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <small>Flask Educacional — Rodando com Python + Jinja2</small>
+    </footer>
+
+</body>
+</html>
